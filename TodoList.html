@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TodoList</title>
+</head>
+
+<body>
+  <h1>TodoList</h1>
+  <div id="app">
+    <label for="">
+      <input type="text" v-model="message">
+      <button @click="submit">提交</button>
+    </label>
+    <h2>未完成的计划：</h2>
+    <cpn1 :cunf="unf" @unfdel="delunf" @unfup="upfed"></cpn1>
+    <h2>已完成的计划：</h2>
+    <cpn2 :cfed="fed" @feddel="delfed" @fedup="upunf"></cpn2>
+  </div>
+
+  <template id="cpn1">
+    <div>
+      <div v-for="(item,index) in cunf">
+        <button @click="unfdel(index)">删除</button>
+        <button @click="unfup(index)">未完成</button>
+        <span>{{ item }}</span>
+      </div>
+    </div>
+  </template>
+
+  <template id="cpn2">
+    <div>
+      <div v-for="(item, index) in cfed">
+        <button @click="feddel(index)">删除</button>
+        <button @click="fedup(index)">已完成</button>
+        <span>{{ item }}</span>
+      </div>
+    </div>
+  </template>
+
+  <script src="./vue.js"></script>
+  <script>
+    // 比较函数
+    function lengthsort(a, b) {
+      return a.length - b.length
+    }
+    const cpn1 = Vue.extend({
+      template: '#cpn1',
+      props: {
+        cunf: {
+          type: Array,
+          default: ['322', '323']
+        }
+      },
+      methods: {
+        unfdel(index) {
+          this.cunf.splice(index, 1)
+          this.$emit('unfdel', this.cunf)
+        },
+        unfup(index) {
+          let updateitem = this.cunf[index]
+          this.cunf.splice(index, 1)
+          this.$emit('unfup', [updateitem, this.cunf])
+        }
+      },
+    })
+
+    const cpn2 = Vue.extend({
+      template: '#cpn2',
+      props: {
+        cfed: {
+          type: Array,
+          default: ['洗澡', '睡觉']
+        }
+      },
+      methods: {
+        feddel(index) {
+          this.cfed.splice(index, 1)
+          this.$emit('feddel', this.cfed)
+        },
+        fedup(index) {
+          let updateitem = this.cfed[index]
+          this.cfed.splice(index, 1)
+          this.$emit('fedup', [updateitem, this.cfed])
+        }
+      }
+    })
+
+    const app = new Vue({
+      el: '#app',
+      components: {
+        cpn1,
+        cpn2
+      },
+      data: {
+        eventlist: [
+          ['unfinish', '吃烤肉'],
+          ['finished', '睡觉'],
+          ['finished', '狠狠洗把脸'],
+          ['unfinish', '跑三公里']
+        ],
+        unf: [],
+        fed: [],
+        message: ''
+      },
+      methods: {
+        delunf(cunf) {
+          this.unf = cunf
+        },
+        upfed(update) {
+          this.fed.push(update[0])
+          this.fed.sort(lengthsort)
+          this.unf = update[1]
+        },
+        delfed(cfed) {
+          this.fed = cfed
+        },
+        upunf(update) {
+          this.unf.push(update[0])
+          this.unf.sort(lengthsort)
+          this.fed = update[1]
+        },
+        submit() {
+          this.unf.push(this.message)
+          this.unf.sort(lengthsort)
+        }
+      },
+      beforeCreate() {
+        alert('实例创建完成')
+      },
+      mounted() {
+        let el = this.eventlist
+        for (let i = 0; i < el.length; i++) {
+          if (el[i][0] === 'unfinish') {
+            this.unf.push(el[i][1])
+          } else {
+            this.fed.push(el[i][1])
+          }
+        }
+        this.unf.sort(lengthsort)
+        this.fed.sort(lengthsort)
+      },
+    })
+  </script>
+</body>
+
+
+</html>
